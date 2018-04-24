@@ -103,7 +103,15 @@ class IpynbRenderer extends Renderer {
       case "markdown" =>
         val md = cell.source.mkString("")
         val rendered = markdown(md, repository, enableWikiLink, enableRefsLink, enableLineBreaks = true)
-        s"""<div class="ipynb-innercell"><div clss="ipynb-prompt ipynb-input-prompt"></div><div class="ipynb-prompt ipynb-input-prompt"></div><div calss="ipynb-rendered ipynb-rendered-markdown">$rendered</div></div>"""
+        val imageTag = cell.attachments.map{ o =>
+          o.values.map{ o => 
+            o.values.map{ o => 
+              s"""<img src="data:image/png;base64,$o" alt="image.png">"""
+            }.mkString("")
+          }.mkString("")
+        }.mkString("")
+        val rendered2 = s"""$rendered""".replace("""<img src="attachment:image.png?raw=true" alt="image.png">""" , imageTag)
+        s"""<div class="ipynb-innercell"><div clss="ipynb-prompt ipynb-input-prompt"></div><div class="ipynb-prompt ipynb-input-prompt"></div><div calss="ipynb-rendered ipynb-rendered-markdown">$rendered2</div></div>"""
       case _ =>
         s"""<div class="ipynb-prompt ipynb-input-prompt">???</div><div class="ipynb-rendered ipynb-rendered-unknown"><code><pre>${cell.source.mkString("")}</pre></code></div>"""
     }
